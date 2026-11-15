@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Straßenverkehr Training</title>
+<style>
+:root{--bg:#ffffff;--fg:#1a1a1a;--muted:#555;--card:#f4f1f0;--line:#d9d2d0;--accent:#b3141b;--accent-fg:#fff;--ok:#1e6b2f;--bad:#b3141b;--focus:#0b57d0;--fs:18px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141414;--fg:#f2f2f2;--muted:#bbb;--card:#222;--line:#3a3a3a;--accent:#ff5a5f;--accent-fg:#141414;--ok:#6fd38a;--bad:#ff6b6b;--focus:#8ab4f8}}
+:root[data-theme="dark"]{--bg:#141414;--fg:#f2f2f2;--muted:#bbb;--card:#222;--line:#3a3a3a;--accent:#ff5a5f;--accent-fg:#141414;--ok:#6fd38a;--bad:#ff6b6b;--focus:#8ab4f8}
+:root[data-contrast="hoch"]{--bg:#000;--fg:#fff;--muted:#fff;--card:#000;--line:#fff;--accent:#ffd400;--accent-fg:#000;--ok:#7CFF7C;--bad:#ff8080;--focus:#00e5ff}
+*{box-sizing:border-box}
+html{font-size:var(--fs)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Arial,Helvetica,sans-serif;line-height:1.5}
+main{max-width:720px;margin:0 auto;padding:16px}
+header.top{background:var(--accent);color:var(--accent-fg);padding:16px}
+header.top h1{margin:0 0 4px;font-size:1.5rem}
+header.top p{margin:0}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+button,select,input{font:inherit}
+button{min-height:48px;padding:8px 16px;border-radius:10px;border:2px solid var(--fg);background:var(--bg);color:var(--fg);cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+header.top button{border-color:var(--accent-fg);background:transparent;color:var(--accent-fg)}
+:focus-visible{outline:4px solid var(--focus);outline-offset:2px}
+nav.tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:2}
+nav.tabs button{white-space:nowrap;min-height:44px}
+nav.tabs button[aria-selected="true"]{background:var(--fg);color:var(--bg)}
+section{display:none}
+section.active{display:block}
+h2{font-size:1.35rem;margin:16px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
+label{display:block;font-weight:bold;margin-top:12px}
+input[type=number],input[type=text],select{width:100%;min-height:48px;padding:8px 12px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--fg)}
+.big{font-size:1.6rem;font-weight:bold}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:480px){.row{grid-template-columns:1fr}}
+.result{margin-top:12px;padding:12px;border-radius:10px;border:2px solid var(--accent)}
+.answers{display:grid;gap:8px;margin-top:12px}
+.answers button{text-align:left}
+.answers button.right{border-color:var(--ok);border-width:4px}
+.answers button.wrong{border-color:var(--bad);border-width:4px;text-decoration:line-through}
+.stars{color:var(--accent);font-weight:bold}
+#rxPad{height:200px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:bold;border:3px solid var(--line);user-select:none;-webkit-user-select:none;touch-action:manipulation;cursor:pointer;width:100%}
+#rxPad.wait{background:var(--card)}
+#rxPad.go{background:var(--ok);color:#000}
+table{width:100%;border-collapse:collapse}
+td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left}
+img.tsf{width:100%;height:auto;background:#fff;border-radius:10px}
+.sr{position:absolute;left:-9999px}
+.muted{color:var(--muted)}
+.code{font-family:monospace;font-size:1.8rem;letter-spacing:2px}
+footer{padding:24px 16px;color:var(--muted);font-size:.85rem;text-align:center}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Feuerwehr im Straßenverkehr</h1>
+  <p>Training zu Unterricht 01 · FFW Betziesdorf</p>
+  <div class="tools" role="group" aria-label="Darstellung">
+    <button id="fsPlus" aria-label="Schrift größer">A+</button>
+    <button id="fsMinus" aria-label="Schrift kleiner">A−</button>
+    <button id="contrast" aria-pressed="false">Hoher Kontrast</button>
+    <button id="speakToggle" aria-pressed="false">Vorlesen: aus</button>
+  </div>
+</header>
+<nav class="tabs" role="tablist" aria-label="Bereiche">
+  <button role="tab" data-tab="weg" aria-selected="true">1 Mein Weg</button>
+  <button role="tab" data-tab="geschoss">2 Lose Teile</button>
+  <button role="tab" data-tab="tsf">3 Unser TSF-W</button>
+  <button role="tab" data-tab="reaktion">4 Reaktion</button>
+  <button role="tab" data-tab="quiz">5 Quiz</button>
+  <button role="tab" data-tab="merk">6 Merken</button>
+</nav>
+<main>
+<div id="live" class="sr" aria-live="polite"></div>
+
+<section id="weg" class="active" role="tabpanel" aria-label="Mein Weg zum Feuerwehrhaus">
+  <h2>Was bringt Rasen auf meinem Weg?</h2>
+  <p>Trag deine Strecke zum Feuerwehrhaus ein. Die Seite rechnet, wie viele Sekunden du sparst und was es dich im Ernstfall kostet.</p>
+  <div class="card">
+    <div class="row">
+      <div><label for="kmIn">Strecke innerorts (km)</label><input id="kmIn" type="number" inputmode="decimal" step="0.1" min="0" value="1"></div>
+      <div><label for="kmOut">Strecke außerorts (km)</label><input id="kmOut" type="number" inputmode="decimal" step="0.1" min="0" value="2"></div>
+      <div><label for="vIn">Dein Tempo innerorts (km/h)</label><input id="vIn" type="number" inputmode="numeric" min="30" max="150" value="80"></div>
+      <div><label for="vOut">Dein Tempo außerorts (km/h)</label><input id="vOut" type="number" inputmode="numeric" min="50" max="200" value="130"></div>
+    </div>
+    <button class="primary" id="calcWeg" style="margin-top:16px">Ausrechnen</button>
+    <div id="wegOut" class="result" aria-live="polite" hidden></div>
+  </div>
+  <p class="muted">Annahmen: erlaubt 50 innerorts und 100 außerorts, 1 Sekunde Reaktionszeit, Vollbremsung 8 m/s² auf trockener Straße. Kreuzungen und Ampeln machen den echten Zeitgewinn noch kleiner.</p>
+</section>
+
+<section id="geschoss" role="tabpanel" aria-label="Lose Gegenstände">
+  <h2>Was wiegt es beim Aufprall?</h2>
+  <p>Bei einem Aufprall mit 50 km/h wirken lose Gegenstände etwa 30- bis 50-mal so schwer.</p>
+  <div class="card">
+    <label for="gegen">Gegenstand</label>
+    <select id="gegen">
+      <option value="0.2">Handy (0,2 kg)</option>
+      <option value="1.5">1,5-l-Wasserflasche (1,5 kg)</option>
+      <option value="1.5">Feuerwehrhelm (1,5 kg)</option>
+      <option value="2.5">Paar Feuerwehrstiefel (2,5 kg)</option>
+      <option value="2">Laptop (2 kg)</option>
+      <option value="5">Werkzeugkasten (5 kg)</option>
+      <option value="10">Getränkekiste halb voll (10 kg)</option>
+    </select>
+    <label for="gewEigen">… oder eigenes Gewicht in kg</label>
+    <input id="gewEigen" type="number" inputmode="decimal" step="0.1" min="0" placeholder="z. B. 0,8">
+    <button class="primary" id="calcGeschoss" style="margin-top:16px">Ausrechnen</button>
+    <div id="geschossOut" class="result" aria-live="polite" hidden></div>
+  </div>
+  <div class="card"><strong>Mein Auto-Check:</strong> Hutablage leer? Ausrüstung im Kofferraum, schwer nach unten? Getränke und Handy fest verstaut? Gurte auf der Rückbank geschlossen, wenn dort etwas lehnt?</div>
+</section>
+
+<section id="tsf" role="tabpanel" aria-label="Unser TSF-W">
+  <h2>Unser TSF-W</h2>
+  <img class="tsf" src="data:image/jpeg;base64,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w6sJmX9AaAI9P8PacIQ723mMsj43kkD5j26Vqy3EFoqIcKTwkajlvYCqK+HbNBhXuQM5/wBe3WqY8LGK9e6g1GZJT91nUOVHsTQBsxRO0vnT43dEQchB/iasVkjS7/bj+2Z8+vlLUU2h3dxA0Uus3LKxGcKAf0oA26K5s+Embrqt1j0/yaRvCGT/AMhS6/P/AOvQB0tFcwfBuf8AmK3f5/8A16QeDMEE6rdkj1P/ANegDqKK5lfB+0Y/tS6PbJP/ANerMPheKOUNLeXEqjqhbAP5UAbtFZg0CzHQz/8Af5qBoNnjB88j3mb/ABoA06KzP7Bssk4lyf8Aps3+NOOh2Z6iX/v63+NAGjRWb/YNlz8svIx/rm/xoXQrJQABMABj/XN/jQBpUVnDQrIYwsvH/TZv8aP7Dss52y/9/m/xoA0aKzv7Dsv7kn/f1v8AGnLo1ojBgJcg5/1zf40AX6KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAE/CloooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//Z" alt="Seitenansicht des TSF-W: Doppelkabine vorne, dahinter Geräteaufbau mit Rollläden, Leiter auf dem Dach.">
+  <table aria-label="Maße und Gewichte">
+    <tr><th>Länge</th><td>6,15 m</td></tr>
+    <tr><th>Breite (ohne Spiegel)</th><td>2,30 m</td></tr>
+    <tr><th>Höhe</th><td>2,62 m</td></tr>
+    <tr><th>Radstand</th><td>3,45 m</td></tr>
+    <tr><th>Überhang hinten</th><td>1,62 m</td></tr>
+    <tr><th>Zulässige Gesamtmasse</th><td>6,0 t</td></tr>
+    <tr><th>Achslast vorne / hinten</th><td>2,30 t / 4,65 t</td></tr>
+  </table>
+  <p class="muted">Werte aus dem Unterricht 2016. Beim Dienst nachgemessen? Dann gelten die neuen Werte.</p>
+  <h2>Kommen wir durch?</h2>
+  <div class="card" id="schildCard">
+    <p id="schildText" class="big"></p>
+    <div class="answers">
+      <button data-ans="durch">Durch</button>
+      <button data-ans="stopp">Stopp</button>
+    </div>
+    <p id="schildFb" aria-live="polite"></p>
+    <button id="schildNext" hidden>Nächstes Schild</button>
+  </div>
+</section>
+
+<section id="reaktion" role="tabpanel" aria-label="Reaktionstest">
+  <h2>Reaktionstest</h2>
+  <p>Tippe auf „Start“. Sobald das Feld grün wird (oder im Ton-Modus der Piepton kommt), tippst du so schnell wie möglich auf das Feld. Mach eine Runde in Ruhe und eine, während andere auf dich einreden.</p>
+  <div class="card">
+    <label for="rxMode">Signal</label>
+    <select id="rxMode"><option value="bild">Farbe (grün)</option><option value="ton">Ton (Piepton)</option></select>
+    <label for="rxRound">Runde</label>
+    <select id="rxRound"><option value="ruhe">In Ruhe</option><option value="stress">Mit Ablenkung</option></select>
+    <button id="rxPad" class="wait" aria-live="assertive">Start</button>
+    <div id="rxOut" class="result" aria-live="polite" hidden></div>
+  </div>
+</section>
+
+<section id="quiz" role="tabpanel" aria-label="Quiz">
+  <h2>Quiz</h2>
+  <div class="card" id="quizStart">
+    <p>17 Fragen. Ab 80 % richtig bekommst du einen Abschluss-Code für die Jahres-Challenge. Zeig ihn Gerhard, dann gibt es einen Punkt für dein Team.</p>
+    <label for="qName">Dein Name (für den Code)</label>
+    <input id="qName" type="text" autocomplete="given-name">
+    <button class="primary" id="qBegin" style="margin-top:16px">Quiz starten</button>
+  </div>
+  <div class="card" id="quizBox" hidden>
+    <p class="muted" id="qProg"></p>
+    <p><span class="stars" id="qStars"></span></p>
+    <p id="qText" class="big" style="font-size:1.25rem"></p>
+    <div class="answers" id="qAnswers"></div>
+    <p id="qExpl" aria-live="polite"></p>
+    <button class="primary" id="qNext" hidden>Weiter</button>
+  </div>
+  <div class="card" id="quizEnd" hidden></div>
+</section>
+
+<section id="merk" role="tabpanel" aria-label="Merken">
+  <h2>Drei Sätze zum Mitnehmen</h2>
+  <div class="card"><p class="big" style="font-size:1.2rem">1. Rasen spart Sekunden und kostet im Ernstfall alles. Wir fahren so, dass wir ankommen.</p></div>
+  <div class="card"><p class="big" style="font-size:1.2rem">2. Unser TSF-W: 6,15 m lang, 2,30 m breit, 2,62 m hoch, bis 6 t schwer. Es fährt sich anders als ein Pkw.</p></div>
+  <div class="card"><p class="big" style="font-size:1.2rem">3. Unter Adrenalin sehen und denken wir schlechter. Der Fahrer entscheidet über das Tempo, nicht die Mitfahrer.</p></div>
+  <button id="readMerk">Alle drei vorlesen</button>
+</section>
+</main>
+<footer>FFW Betziesdorf · Unterricht 01 Teil 1 · Zahlen sind Faustwerte für die Ausbildung, keine Rechtsberatung.</footer>
+
+<script>
+const QUIZ = [{"s": 1, "q": "Du fährst mit dem Privatauto zum Feuerwehrhaus. Müssen andere dir Platz machen?", "a": ["Nein, ohne Blaulicht und Horn kein Wegerecht", "Ja, bei Alarm immer", "Ja, wenn ich Warnblinker anmache", "Ja, wenn ich hupe"], "c": 0, "t": 20, "e": "Wegerecht (§ 38 StVO) gibt es nur mit Blaulicht und Einsatzhorn. Ob Sonderrechte (§ 35) im Privatauto gelten, ist umstritten und wird eng ausgelegt. Im Zweifel: normal fahren."}, {"s": 1, "q": "1 km innerorts mit 80 statt 50 km/h: Wie viel Zeit sparst du ungefähr?", "a": ["ca. 5 Sekunden", "ca. 27 Sekunden", "ca. 2 Minuten", "ca. 5 Minuten"], "c": 1, "t": 20, "e": "72 s statt 45 s, also 27 s. In der Praxis wegen Kreuzungen und Bremsen noch weniger."}, {"s": 2, "q": "Bei 50 km/h stehst du nach ca. 26 m. Wie schnell bist du an dieser Stelle, wenn du 80 km/h gefahren bist?", "a": ["ca. 10 km/h", "ca. 30 km/h", "ca. 50 km/h", "ca. 75 km/h"], "c": 3, "t": 30, "e": "Bei 80 km/h fährst du in der 1 Sekunde Reaktionszeit schon 22 m. Dort, wo du mit 50 stehen würdest, prallst du noch mit etwa 75 km/h auf."}, {"s": 1, "q": "Wie viel mehr Bewegungsenergie hat ein Auto bei 80 statt bei 50 km/h?", "a": ["ca. 1,6-mal so viel", "ca. 2,5-mal so viel", "ca. 5-mal so viel", "gleich viel"], "c": 1, "t": 20, "e": "Die Energie wächst mit dem Quadrat der Geschwindigkeit: (80/50)² ≈ 2,56."}, {"s": 1, "q": "Ein 200-g-Handy fliegt bei einem Aufprall mit 50 km/h durchs Auto. Wie schwer wirkt es?", "a": ["ca. 400 g", "ca. 2 kg", "ca. 6 bis 10 kg", "ca. 100 kg"], "c": 2, "t": 20, "e": "Bei einem Aufprall mit 50 km/h wirken lose Gegenstände etwa 30- bis 50-mal so schwer."}, {"s": 2, "q": "Deine Feuerwehrstiefel (2 kg) liegen lose auf der Rückbank. Aufprall mit 50 km/h. Sie wirken etwa wie …", "a": ["6 kg", "20 kg", "60 bis 100 kg", "1 Tonne"], "c": 2, "t": 20, "e": "2 kg × 30 bis 50 = 60 bis 100 kg. Das ist ein erwachsener Mensch, der dir in den Nacken fliegt."}, {"s": 1, "q": "Wann müssen andere dem TSF-W sofort freie Bahn schaffen (Wegerecht, § 38 StVO)?", "a": ["Wenn nur das Blaulicht an ist", "Bei Blaulicht und Martinshorn zusammen", "Bei Warnblinker", "Bei Fernlicht"], "c": 1, "t": 20, "e": "Das Wegerecht gilt nur, wenn blaues Blinklicht und Einsatzhorn gemeinsam eingeschaltet sind."}, {"s": 2, "q": "Sonderrechte (§ 35 StVO) bei der Einsatzfahrt gelten …", "a": ["immer und ohne Einschränkung", "nur wenn dringend geboten und mit Rücksicht", "nur auf der Autobahn", "nur für Gruppenführer"], "c": 1, "t": 20, "e": "§ 35 Abs. 8: nur unter gebührender Berücksichtigung der öffentlichen Sicherheit und Ordnung. Bei einem Unfall haftet trotzdem auch der Fahrer."}, {"s": 1, "q": "Du musst mit dem TSF-W rückwärts fahren und siehst hinten nicht alles. Was gilt?", "a": ["Nur mit Einweiser", "Warnblinker reicht", "Hupen reicht", "Schnell fahren, dann geht es"], "c": 0, "t": 20, "e": "Rückwärtsfahren ohne ausreichende Sicht nur mit Einweiser (DGUV Vorschrift 70). Der Einweiser steht seitlich hinten im Sichtfeld des Fahrers."}, {"s": 2, "q": "Was macht das Hinterrad eines längeren Fahrzeugs in einer engen Kurve?", "a": ["Es läuft weiter innen als das Vorderrad", "Es läuft weiter außen", "Es läuft genau in der Spur", "Es hebt ab"], "c": 0, "t": 20, "e": "Die Hinterräder schneiden die Kurve (Schleppkurve). Deshalb weit ausholen und auf Bordsteine, Pfosten und Radfahrer innen achten. Das Heck schwenkt dabei außen aus."}, {"s": 1, "q": "Was macht Adrenalin typischerweise mit dir am Steuer?", "a": ["Tunnelblick und verzerrtes Zeitgefühl", "Bessere Rundumsicht", "Mehr Geduld", "Gar nichts"], "c": 0, "t": 20, "e": "Stress verengt den Blick, du hörst schlechter, schätzt Zeit und Tempo falsch ein und überschätzt dich. Gegenmittel: bewusst atmen, Tempo im Blick, Checkliste."}, {"s": 2, "q": "Beifahrer ruft: „Gib Gas, wir sind spät dran!“ Was ist richtig?", "a": ["Gas geben, er ist der Chef", "Ich entscheide als Fahrer über das Tempo", "Anhalten und diskutieren", "Martinshorn ausschalten"], "c": 1, "t": 20, "e": "Der Fahrer ist für die sichere Fahrt verantwortlich. Gute Fahrzeugführer sorgen für Ruhe im Fahrzeug („ruhiges Cockpit“)."}, {"s": 3, "q": "Warum fährt sich das TSF-W mit vollem Wassertank anders?", "a": ["Höherer Schwerpunkt, Wasser schwappt, längerer Bremsweg", "Das Fahrzeug wird leichter", "Gar kein Unterschied", "Nur beim Parken anders"], "c": 0, "t": 30, "e": "Mehrere hundert Liter Wasser bedeuten mehrere hundert Kilo zusätzlich, oft hoch im Aufbau. Kurven und Bremsungen werden kritischer."}, {"s": 3, "q": "Was bringt der Mannschaft im Ernstfall am meisten Zeit?", "a": ["Rasen zum Feuerwehrhaus", "Zügig, aber ruhig umziehen und geordnet ausrücken", "Ohne Gurt losfahren", "Ampeln ignorieren"], "c": 1, "t": 20, "e": "Die meiste Zeit geht im Feuerwehrhaus verloren oder wird dort gewonnen: Spind ordentlich, Wege kurz, klare Absprachen. Auf der Straße gewinnt man nur Sekunden und riskiert alles."}, {"s": 2, "q": "Wie schnell darf unser TSF-W (6 t) außerorts ohne Sonderrechte höchstens fahren?", "a": ["60 km/h", "80 km/h", "100 km/h", "120 km/h"], "c": 1, "t": 20, "e": "Kfz über 3,5 t bis 7,5 t: außerorts 80 km/h (§ 3 StVO), auf der Autobahn ebenfalls 80 km/h."}, {"s": 1, "q": "Ein Schild zeigt eine Höhenbegrenzung von 2,5 m. Kommt unser TSF-W (2,62 m) durch?", "a": ["Ja, das passt", "Nein, wir sind zu hoch", "Nur langsam", "Nur mit Blaulicht"], "c": 1, "t": 20, "e": "2,62 m sind höher als 2,5 m. Und Achtung: Dachbeladung oder Blaulicht können das Fahrzeug noch höher machen."}, {"s": 2, "q": "Du stellst das TSF-W an einer abschüssigen Straße ab. Was ist nötig?", "a": ["Handbremse reicht", "Gang einlegen reicht", "Beide Unterlegkeile unterlegen", "Warnblinker an"], "c": 2, "t": 20, "e": "Handbremse und Gang reichen bei einem schweren Fahrzeug am Gefälle unter Umständen nicht. Beide Keile unterlegen."}];
+const SCHILDER = [
+ {t:"Höhenbegrenzung 2,8 m",a:"durch",e:"Wir sind 2,62 m hoch. Knapp! Dachbeladung und Blaulicht prüfen."},
+ {t:"Höhenbegrenzung 2,5 m",a:"stopp",e:"2,62 m sind zu hoch."},
+ {t:"Breitenbegrenzung 2,0 m",a:"stopp",e:"Wir sind 2,30 m breit."},
+ {t:"Längenbegrenzung 6 m",a:"stopp",e:"Wir sind 6,15 m lang."},
+ {t:"Längenbegrenzung 10 m",a:"durch",e:"6,15 m passen."},
+ {t:"Gewichtsbegrenzung 5,5 t (tatsächliches Gewicht)",a:"stopp",e:"Voll beladen sind wir nahe 6 t."},
+ {t:"Gewichtsbegrenzung 7,5 t",a:"durch",e:"Höchstens 6 t."},
+ {t:"Achslast 4 t",a:"stopp",e:"Unsere Hinterachse trägt bis 4,65 t."},
+ {t:"Verbot für Kraftfahrzeuge über 3,5 t (Lkw-Symbol), kein Einsatz",a:"stopp",e:"Mit 6 t gilt das Schild für uns."},
+ {t:"Gefälle 12 %",a:"durch",e:"Durch, aber vorher runterschalten, sonst lassen die Bremsen nach."}
+];
+const $=s=>document.querySelector(s);
+const fmt=(n,d=0)=>n.toLocaleString('de-DE',{maximumFractionDigits:d,minimumFractionDigits:d});
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let speakOn=false;
+function say(t){ $('#live').textContent=t; if(speakOn && 'speechSynthesis' in window){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='de-DE'; speechSynthesis.speak(u);} }
+// Darstellung
+let fs=parseInt(store.get('fs')||'18',10); const applyFs=()=>{document.documentElement.style.setProperty('--fs',fs+'px');store.set('fs',fs)}; applyFs();
+$('#fsPlus').onclick=()=>{fs=Math.min(30,fs+2);applyFs()}; $('#fsMinus').onclick=()=>{fs=Math.max(14,fs-2);applyFs()};
+const setContrast=on=>{ if(on)document.documentElement.dataset.contrast='hoch'; else delete document.documentElement.dataset.contrast; $('#contrast').setAttribute('aria-pressed',on); store.set('ct',on?'1':'0')};
+setContrast(store.get('ct')==='1'); $('#contrast').onclick=()=>setContrast(!document.documentElement.dataset.contrast);
+$('#speakToggle').onclick=()=>{speakOn=!speakOn;$('#speakToggle').setAttribute('aria-pressed',speakOn);$('#speakToggle').textContent='Vorlesen: '+(speakOn?'an':'aus'); if(speakOn) say('Vorlesen ist an.')};
+// Tabs
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('active',s.id===b.dataset.tab));
+  store.set('tab',b.dataset.tab); window.scrollTo(0,0);
+});
+const lastTab=store.get('tab'); if(lastTab){const b=document.querySelector(`nav.tabs button[data-tab="${lastTab}"]`); if(b)b.click();}
+// Physik
+const A=8,TR=1;
+const stopDist=v=>{v/=3.6;return v*TR+v*v/(2*A)};
+function impact(vk,at){const v=vk/3.6;const d=at-v*TR;if(d<=0)return vk;const r=v*v-2*A*d;return r<=0?0:Math.sqrt(r)*3.6}
+const num=id=>{const v=parseFloat(String($(id).value).replace(',','.'));return isNaN(v)?0:v};
+$('#calcWeg').onclick=()=>{
+  const kmI=num('#kmIn'),kmO=num('#kmOut'),vI=Math.max(1,num('#vIn')),vO=Math.max(1,num('#vOut'));
+  const tN=kmI/50*3600+kmO/100*3600, tS=kmI/vI*3600+kmO/vO*3600, gain=Math.max(0,tN-tS);
+  const s50=stopDist(50), imp=impact(vI,s50), e=(vI/50)**2;
+  const txt=`Normal brauchst du ${fmt(tN)} Sekunden, mit deinem Tempo ${fmt(tS)} Sekunden. Du sparst höchstens ${fmt(gain)} Sekunden. `+
+   `Bei 50 km/h stehst du nach etwa ${fmt(s50)} Metern. Mit ${fmt(vI)} km/h bist du an dieser Stelle noch ${fmt(imp)} km/h schnell. `+
+   `Dein Auto hat ${fmt(e,1)}-mal so viel Bewegungsenergie. Anhalteweg bei ${fmt(vI)} km/h: etwa ${fmt(stopDist(vI))} Meter.`;
+  $('#wegOut').hidden=false;
+  $('#wegOut').innerHTML=`<p class="big">${fmt(gain)} s gespart</p><p>Normal: ${fmt(tN)} s · Mit deinem Tempo: ${fmt(tS)} s</p><p><strong>Aber:</strong> Wo du mit 50 km/h stehst (nach ca. ${fmt(s50)} m), prallst du mit ${fmt(vI)} km/h noch mit <strong>${fmt(imp)} km/h</strong> auf.</p><p>Bewegungsenergie: <strong>${fmt(e,1)}-fach</strong> · Anhalteweg bei ${fmt(vI)} km/h: <strong>ca. ${fmt(stopDist(vI))} m</strong></p>`;
+  say(txt);
+};
+$('#calcGeschoss').onclick=()=>{
+  const own=num('#gewEigen'); const kg=own>0?own:parseFloat($('#gegen').value);
+  const lo=kg*30,hi=kg*50;
+  $('#geschossOut').hidden=false;
+  $('#geschossOut').innerHTML=`<p class="big">${fmt(lo)} bis ${fmt(hi)} kg</p><p>So schwer trifft dich ein ${fmt(kg,1)}-kg-Gegenstand bei einem Aufprall mit 50 km/h.</p>`;
+  say(`Ein Gegenstand mit ${fmt(kg,1)} Kilo wirkt beim Aufprall mit 50 Kilometern pro Stunde wie ${fmt(lo)} bis ${fmt(hi)} Kilo.`);
+};
+// Schilder
+let si=0,sOk=0;
+function showSchild(){const s=SCHILDER[si%SCHILDER.length];$('#schildText').textContent=`Schild ${si%SCHILDER.length+1}: ${s.t}`;$('#schildFb').textContent='';$('#schildNext').hidden=true;
+ document.querySelectorAll('#schildCard .answers button').forEach(b=>{b.disabled=false;b.className=''}); say('Kommen wir durch? '+s.t);}
+document.querySelectorAll('#schildCard .answers button').forEach(b=>b.onclick=()=>{
+  const s=SCHILDER[si%SCHILDER.length]; const ok=b.dataset.ans===s.a; if(ok)sOk++;
+  document.querySelectorAll('#schildCard .answers button').forEach(x=>{x.disabled=true; if(x.dataset.ans===s.a)x.className='right'; else if(x===b)x.className='wrong'});
+  $('#schildFb').textContent=(ok?'Richtig. ':'Leider falsch. ')+s.e+` (${sOk} von ${si+1} richtig)`; say($('#schildFb').textContent);
+  $('#schildNext').hidden=false; $('#schildNext').focus();
+});
+$('#schildNext').onclick=()=>{si++;showSchild()}; showSchild();
+// Reaktion
+let rxState='idle',rxT0=0,rxTimer=null,actx=null; const rxRes={ruhe:[],stress:[]};
+function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;o.connect(g);g.connect(actx.destination);g.gain.value=0.3;o.start();o.stop(actx.currentTime+0.25)}catch(e){}}
+$('#rxPad').addEventListener('pointerdown',e=>{e.preventDefault();
+  const pad=$('#rxPad');
+  if(rxState==='idle'){ if($('#rxMode').value==='ton'){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();actx.resume()}catch(e){}}
+    rxState='wait';pad.className='wait';pad.textContent='Warten …';
+    rxTimer=setTimeout(()=>{rxState='go';rxT0=performance.now(); if($('#rxMode').value==='ton'){beep();pad.textContent='Jetzt!'} else {pad.className='go';pad.textContent='JETZT!'}},1500+Math.random()*3000);
+  } else if(rxState==='wait'){clearTimeout(rxTimer);rxState='idle';pad.className='wait';pad.textContent='Zu früh! Nochmal: Start';say('Zu früh.');}
+  else if(rxState==='go'){const ms=performance.now()-rxT0;rxState='idle';pad.className='wait';pad.textContent='Start';
+    const r=$('#rxRound').value; rxRes[r].push(ms); const m=ms/1000*50/3.6;
+    const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+    let h=`<p class="big">${fmt(ms)} ms</p><p>In dieser Zeit fährst du bei 50 km/h <strong>${fmt(m,1)} m</strong>, ohne zu bremsen.</p>`;
+    if(rxRes.ruhe.length&&rxRes.stress.length){const d=avg(rxRes.stress)-avg(rxRes.ruhe);h+=`<p>Durchschnitt in Ruhe: ${fmt(avg(rxRes.ruhe))} ms · mit Ablenkung: ${fmt(avg(rxRes.stress))} ms. Unterschied bei 50 km/h: <strong>${fmt(d/1000*50/3.6,1)} m</strong>.</p>`}
+    $('#rxOut').hidden=false;$('#rxOut').innerHTML=h; say(`${fmt(ms)} Millisekunden. Das sind ${fmt(m,1)} Meter bei 50.`);}
+});
+// Quiz
+let qi=0,qOk=0,qName='';
+$('#qBegin').onclick=()=>{qName=($('#qName').value||'').trim();qi=0;qOk=0;$('#quizStart').hidden=true;$('#quizEnd').hidden=true;$('#quizBox').hidden=false;showQ()};
+function showQ(){const q=QUIZ[qi];$('#qProg').textContent=`Frage ${qi+1} von ${QUIZ.length}`;$('#qStars').textContent='★'.repeat(q.s)+['',' Basis',' Fortgeschritten',' Profi'][q.s];
+ $('#qText').textContent=q.q;$('#qExpl').textContent='';$('#qNext').hidden=true;const box=$('#qAnswers');box.innerHTML='';
+ q.a.forEach((a,j)=>{const b=document.createElement('button');b.textContent='ABCD'[j]+') '+a;b.onclick=()=>answer(j,b);box.appendChild(b)});
+ say(`Frage ${qi+1}. ${q.q} `+q.a.map((a,j)=>'ABCD'[j]+': '+a).join('. '));}
+function answer(j,b){const q=QUIZ[qi];const ok=j===q.c;if(ok)qOk++;
+ [...$('#qAnswers').children].forEach((x,k)=>{x.disabled=true;if(k===q.c)x.className='right';else if(x===b)x.className='wrong'});
+ $('#qExpl').textContent=(ok?'Richtig! ':'Nicht ganz. Richtig ist: '+q.a[q.c]+'. ')+q.e; say($('#qExpl').textContent);
+ $('#qNext').hidden=false;$('#qNext').textContent=qi<QUIZ.length-1?'Weiter':'Auswertung';$('#qNext').focus();}
+$('#qNext').onclick=()=>{qi++; if(qi<QUIZ.length)showQ(); else endQ()};
+function code(n){let h=7;const s=(n||'anonym').toLowerCase()+'|stv01';for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return 'STV1-'+(h%9000+1000)}
+function endQ(){$('#quizBox').hidden=true;const p=Math.round(qOk/QUIZ.length*100);const e=$('#quizEnd');e.hidden=false;
+ let h=`<p class="big">${qOk} von ${QUIZ.length} richtig (${p} %)</p>`;
+ if(p>=80){const c=code(qName);store.set('stv01code',c);h+=`<p>Geschafft! Dein Abschluss-Code${qName?' für '+qName.replace(/[<>&]/g,''):''}:</p><p class="code">${c}</p><p>Mach einen Screenshot und schick ihn Gerhard. Das gibt einen Punkt für dein Team.</p>`; say(`Geschafft. ${p} Prozent. Dein Code: ${c.split('').join(' ')}`);}
+ else {h+=`<p>Für den Code brauchst du 80 %. Schau dir die Erklärungen an und versuch es nochmal.</p>`; say(`${p} Prozent. Für den Code brauchst du 80 Prozent.`);}
+ h+=`<button class="primary" id="qAgain">Nochmal</button>`;e.innerHTML=h;$('#qAgain').onclick=()=>$('#qBegin').click();}
+$('#readMerk').onclick=()=>{const was=speakOn;speakOn=true;say([...document.querySelectorAll('#merk .big')].map(x=>x.textContent).join(' '));speakOn=was};
+</script>
+</body>
+</html>
