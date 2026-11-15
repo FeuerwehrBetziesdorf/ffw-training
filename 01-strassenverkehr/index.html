@@ -71,6 +71,7 @@ footer .spruch{font-family:Georgia,serif;font-style:italic;color:var(--accent);d
     <button id="contrast" aria-pressed="false">Hoher Kontrast</button>
     <button id="speakToggle" aria-pressed="false">Vorlesen: aus</button>
   </div>
+  <p id="ttsMsg" role="status" hidden style="margin:.5em 0 0;padding:.6em .8em;border-left:4px solid #9B1B1F;background:#FFFDF8;color:#2B2114;font-size:.9em"></p>
 </header>
 <nav class="tabs" role="tablist" aria-label="Bereiche">
   <button role="tab" data-tab="weg" aria-selected="true">1 Mein Weg</button>
@@ -206,13 +207,26 @@ const $=s=>document.querySelector(s);
 const fmt=(n,d=0)=>n.toLocaleString('de-DE',{maximumFractionDigits:d,minimumFractionDigits:d,useGrouping:false}).replace('.',',');
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 let speakOn=false;
-function say(t){ $('#live').textContent=t; if(speakOn && 'speechSynthesis' in window){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='de-DE'; speechSynthesis.speak(u);} }
+const TTS=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);let deVoice=null;const keep=[];
+function pickVoice(){if(!TTS)return;const v=speechSynthesis.getVoices();deVoice=v.find(x=>/^de[-_]DE/i.test(x.lang)&&x.localService)||v.find(x=>/^de[-_]DE/i.test(x.lang))||v.find(x=>/^de/i.test(x.lang))||null;}
+if(TTS){pickVoice();if(speechSynthesis.addEventListener)speechSynthesis.addEventListener('voiceschanged',pickVoice);else speechSynthesis.onvoiceschanged=pickVoice;}
+function ttsMsg(t){const m=$('#ttsMsg');if(!m)return;m.textContent=t;m.hidden=!t;}
+const TTS_HELP='Kein Ton? iPhone: Stummschalter an der Seite aus und Lautstärke hoch. Seite in Safari oder Chrome öffnen, nicht im WhatsApp-/Instagram-Browser. Android: unter Einstellungen > Sprachausgabe eine deutsche Stimme laden.';
+function speakNow(t){if(!TTS){ttsMsg('Dieser Browser kann nicht vorlesen. Bitte Safari (iPhone) oder Chrome (Android) nutzen.');return;}
+ pickVoice();const parts=(t.match(/[^.!?]+[.!?]*/g)||[t]).map(x=>x.trim()).filter(Boolean);let started=false;
+ parts.forEach((p,i)=>{const u=new SpeechSynthesisUtterance(p);u.lang='de-DE';if(deVoice)u.voice=deVoice;u.rate=0.95;
+  u.onstart=()=>{started=true;ttsMsg('');};u.onend=()=>{const k=keep.indexOf(u);if(k>=0)keep.splice(k,1);};
+  u.onerror=e=>{if(e.error!=='interrupted'&&e.error!=='canceled')ttsMsg('Vorlesen ging nicht ('+e.error+'). '+TTS_HELP);};keep.push(u);speechSynthesis.speak(u);});
+ if(speechSynthesis.paused)speechSynthesis.resume();
+ setTimeout(()=>{if(!started&&!speechSynthesis.speaking)ttsMsg(TTS_HELP);},2500);}
+function say(t){ $('#live').textContent=t; if(!speakOn||!TTS)return;
+ if(speechSynthesis.speaking||speechSynthesis.pending){speechSynthesis.cancel();keep.length=0;setTimeout(()=>speakNow(t),120);} else speakNow(t); }
 // Darstellung
 let fs=parseInt(store.get('fs')||'18',10); const applyFs=()=>{document.documentElement.style.setProperty('--fs',fs+'px');store.set('fs',fs)}; applyFs();
 $('#fsPlus').onclick=()=>{fs=Math.min(30,fs+2);applyFs()}; $('#fsMinus').onclick=()=>{fs=Math.max(14,fs-2);applyFs()};
 const setContrast=on=>{ if(on)document.documentElement.dataset.contrast='hoch'; else delete document.documentElement.dataset.contrast; $('#contrast').setAttribute('aria-pressed',on); store.set('ct',on?'1':'0')};
 setContrast(store.get('ct')==='1'); $('#contrast').onclick=()=>setContrast(!document.documentElement.dataset.contrast);
-$('#speakToggle').onclick=()=>{speakOn=!speakOn;$('#speakToggle').setAttribute('aria-pressed',speakOn);$('#speakToggle').textContent='Vorlesen: '+(speakOn?'an':'aus'); if(speakOn) say('Vorlesen ist an.')};
+$('#speakToggle').onclick=()=>{speakOn=!speakOn;$('#speakToggle').setAttribute('aria-pressed',speakOn);$('#speakToggle').textContent='Vorlesen: '+(speakOn?'an':'aus'); if(speakOn){ if(!TTS){ttsMsg('Dieser Browser kann nicht vorlesen. Bitte Safari (iPhone) oder Chrome (Android) nutzen.');return;} say('Vorlesen ist an.');} else {if(TTS)speechSynthesis.cancel();ttsMsg('');}};
 // Tabs
 document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
