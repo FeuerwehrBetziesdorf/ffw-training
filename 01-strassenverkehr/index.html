@@ -124,7 +124,7 @@ footer{padding:24px 16px;color:var(--muted);font-size:.85rem;text-align:center}
     <tr><th>Zulässige Gesamtmasse</th><td>6,0 t</td></tr>
     <tr><th>Achslast vorne / hinten</th><td>2,30 t / 4,65 t</td></tr>
   </table>
-  <p class="muted">Werte aus dem Unterricht 2016. Beim Dienst nachgemessen? Dann gelten die neuen Werte.</p>
+  <p class="muted">Maße bestätigt im November 2026.</p>
   <h2>Kommen wir durch?</h2>
   <div class="card" id="schildCard">
     <p id="schildText" class="big"></p>
@@ -194,7 +194,7 @@ const SCHILDER = [
  {t:"Gefälle 12 %",a:"durch",e:"Durch, aber vorher runterschalten, sonst lassen die Bremsen nach."}
 ];
 const $=s=>document.querySelector(s);
-const fmt=(n,d=0)=>n.toLocaleString('de-DE',{maximumFractionDigits:d,minimumFractionDigits:d});
+const fmt=(n,d=0)=>n.toLocaleString('de-DE',{maximumFractionDigits:d,minimumFractionDigits:d,useGrouping:false}).replace('.',',');
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 let speakOn=false;
 function say(t){ $('#live').textContent=t; if(speakOn && 'speechSynthesis' in window){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='de-DE'; speechSynthesis.speak(u);} }
