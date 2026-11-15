@@ -1,2 +1,2 @@
 # ffw-training
-Ausbildungsdienste der Feuerwehr BEtziesdorf
+Ausbildungsdienste der Feuerwehr Betziesdorf
