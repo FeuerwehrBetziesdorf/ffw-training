@@ -76,6 +76,7 @@ footer .spruch{font-family:Georgia,serif;font-style:italic;color:var(--accent);d
     <button id="fsMinus" aria-label="Schrift kleiner">A−</button>
     <button id="contrast" aria-pressed="false">Hoher Kontrast</button>
     <button id="speakToggle" aria-pressed="false">Vorlesen: aus</button>
+    <button id="openBrowser" hidden>&#8599; Im Browser öffnen</button>
   </div>
   <p id="ttsMsg" role="status" hidden style="margin:.5em 0 0;padding:.6em .8em;border-left:4px solid #9B1B1F;background:#FFFDF8;color:#2B2114;font-size:.9em"></p>
 </header>
@@ -321,6 +322,7 @@ $('#readMerk').onclick=()=>{const was=speakOn;speakOn=true;say([...document.quer
    txt.textContent='Du bist im Browser von WhatsApp oder Instagram. Tippe auf den Knopf. Falls nichts passiert: oben rechts auf ··· oder das Teilen-Symbol, dann „In Safari öffnen“.'; }
  else { btn.href=url; }
  b.hidden=false; document.getElementById('inappX').onclick=function(){b.hidden=true;};
+ var ob=document.getElementById('openBrowser'); if(ob){ob.hidden=false; ob.textContent='\u2197 '+btn.textContent; ob.onclick=function(){location.href=btn.href;};}
 }catch(e){}})();
 </script>
 </body>
