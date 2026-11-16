@@ -52,18 +52,19 @@ footer .spruch{font-family:Georgia,serif;font-style:italic;color:var(--accent);d
 <main>
   <h2>Unterrichte</h2>
   <ul>
-    <li class="unit" data-code="stv01code">
+    <li class="unit" data-code="stv01code" data-ordner="01-strassenverkehr">
       <a class="card" href="01-strassenverkehr/"><span class="nr">Unterricht 01 · Teil 1</span><span class="titel">Feuerwehr im Straßenverkehr</span><span class="unter">Ankommen statt Umkommen</span><span class="stand" hidden></span></a>
       <div class="chips" aria-label="Direkt üben: Feuerwehr im Straßenverkehr"><a class="chip" href="01-strassenverkehr/#weg">Mein Weg</a><a class="chip" href="01-strassenverkehr/#geschoss">Lose Teile</a><a class="chip" href="01-strassenverkehr/#tsf">Unser TSF-W</a><a class="chip" href="01-strassenverkehr/#reaktion">Reaktion</a><a class="chip q" href="01-strassenverkehr/#quiz">Quiz</a><a class="chip" href="01-strassenverkehr/#merk">Merken</a></div>
     </li>
-    <li class="unit" data-code="stv02code">
+    <li class="unit" data-code="stv02code" data-ordner="01-strassenverkehr-teil2">
       <a class="card" href="01-strassenverkehr-teil2/"><span class="nr">Unterricht 01 · Teil 2</span><span class="titel">Einweisen und Absichern</span><span class="unter">Sichtzeichen nach FwDV 1, Abstände, Fehlersuche</span><span class="stand" hidden></span></a>
       <div class="chips" aria-label="Direkt üben: Einweisen und Absichern"><a class="chip" href="01-strassenverkehr-teil2/#zeichen">Sichtzeichen</a><a class="chip" href="01-strassenverkehr-teil2/#abstand">Abstand</a><a class="chip" href="01-strassenverkehr-teil2/#fehler">Fehlersuche</a><a class="chip q" href="01-strassenverkehr-teil2/#quiz">Quiz</a><a class="chip" href="01-strassenverkehr-teil2/#merk">Merken</a></div>
     </li>
-    <li class="unit" data-code="fwdv1code">
+    <li class="unit" data-code="fwdv1code" data-ordner="03-fwdv1">
       <a class="card" href="03-fwdv1/"><span class="nr">Unterricht 03</span><span class="titel">Was ist neu in der FwDV 1?</span><span class="unter">Stand April 2026: Kapitel, Videos, Zeichen, Quiz</span><span class="stand" hidden></span></a>
       <div class="chips" aria-label="Direkt üben: Was ist neu in der FwDV 1?"><a class="chip" href="03-fwdv1/#kapitel">Kapitel</a><a class="chip" href="03-fwdv1/#neualt">Neu oder alt?</a><a class="chip" href="03-fwdv1/#hydrant">Hydrant</a><a class="chip" href="03-fwdv1/#abstand">Vorwarnung</a><a class="chip" href="03-fwdv1/#zeichen">Zeichen</a><a class="chip q" href="03-fwdv1/#quiz">Quiz</a><a class="chip" href="03-fwdv1/#merk">Merken</a></div>
     </li>
+    <li id="keine" hidden><span class="bald">Gerade ist keine Einheit freigegeben.</span></li>
     <li><span class="bald">Weitere Unterrichte folgen.</span></li>
   </ul>
   <p class="muted klein">Ein Häkchen zeigt, dass du das Quiz auf diesem Handy schon mit mindestens 80 % geschafft hast.</p>
@@ -75,6 +76,12 @@ footer .spruch{font-family:Georgia,serif;font-style:italic;color:var(--accent);d
     var c=get(li.dataset.code); if(!c) return;
     var s=li.querySelector('.stand'); s.hidden=false; s.textContent='✓ Quiz geschafft · Code '+c;
   });
+  // Freigabe durch die Ausbildung: gesperrte Einheiten ausblenden
+  fetch('freigabe.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(f){
+    var zu={}; (f.einheiten||[]).forEach(function(e){if(e.frei===false)zu[e.ordner]=1});
+    var n=0; document.querySelectorAll('li.unit').forEach(function(li){var g=!!zu[li.dataset.ordner]; li.hidden=g; if(!g)n++});
+    var k=document.getElementById('keine'); if(k)k.hidden=n>0;
+  }).catch(function(){});
 })();
 </script>
 <footer><span class="spruch">„Gott zur Ehr, dem Nächsten zur Wehr“</span>Im Notfall immer <b>112</b></footer>

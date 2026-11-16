@@ -1,0 +1,19 @@
+{
+  "einheiten": [
+    {
+      "ordner": "01-strassenverkehr",
+      "titel": "Unterricht 01 · Teil 1: Feuerwehr im Straßenverkehr",
+      "frei": true
+    },
+    {
+      "ordner": "01-strassenverkehr-teil2",
+      "titel": "Unterricht 01 · Teil 2: Einweisen und Absichern",
+      "frei": true
+    },
+    {
+      "ordner": "03-fwdv1",
+      "titel": "Unterricht 03: Was ist neu in der FwDV 1?",
+      "frei": true
+    }
+  ]
+}
