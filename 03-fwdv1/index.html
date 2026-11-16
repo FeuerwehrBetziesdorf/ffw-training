@@ -274,7 +274,7 @@ document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('section').forEach(s=>s.classList.toggle('active',s.id===b.dataset.tab));
   store.set('tab',b.dataset.tab); window.scrollTo(0,0);
 });
-const lastTab=store.get('tab'); if(lastTab){const b=document.querySelector(`nav.tabs button[data-tab="${lastTab}"]`); if(b)b.click();}
+const lastTab=decodeURIComponent((location.hash||'').slice(1))||store.get('tab'); if(lastTab){const b=document.querySelector(`nav.tabs button[data-tab="${lastTab}"]`); if(b)b.click();}
 
 // Kapitel
 document.querySelectorAll('.readK').forEach(b=>b.onclick=()=>{const was=speakOn;speakOn=true;say(b.dataset.t);speakOn=was;});
