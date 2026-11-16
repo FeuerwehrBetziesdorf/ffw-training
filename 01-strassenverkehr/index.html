@@ -325,5 +325,17 @@ $('#readMerk').onclick=()=>{const was=speakOn;speakOn=true;say([...document.quer
  var ob=document.getElementById('openBrowser'); if(ob){ob.hidden=false; ob.textContent='\u2197 '+btn.textContent; ob.onclick=function(){location.href=btn.href;};}
 }catch(e){}})();
 </script>
+<script>
+(function(){
+  var ordner="01-strassenverkehr";
+  fetch('../freigabe.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(f){
+    var e=(f.einheiten||[]).filter(function(x){return x.ordner===ordner})[0];
+    if(!e||e.frei!==false) return;
+    var n=document.querySelector('nav.tabs'); if(n) n.hidden=true;
+    var m=document.querySelector('main'); if(!m) return;
+    m.innerHTML='<div class="card" style="margin-top:16px"><h2 style="margin-top:0">Gerade nicht freigegeben</h2><p>Diese Einheit ist im Moment gesperrt. Sie wird wieder freigeschaltet, wenn sie dran ist.</p><p><a href="../">Zur Übersicht aller Unterrichte</a></p></div>';
+  }).catch(function(){});
+})();
+</script>
 </body>
 </html>
