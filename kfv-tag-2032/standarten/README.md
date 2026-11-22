@@ -3,7 +3,7 @@
 Stammdaten für den Standarten-Weltrekordversuch und den Jubiläumsabend „150 Jahre Feuerwehr Betziesdorf“ beim Kreisfeuerwehrverbandstag 2032 in Betziesdorf.
 
 - Online-Verzeichnis zum Nacherfassen: https://claude.ai/artifact/2zCTZ5d75jVoVTMQcqk6MG
-- Stand dieser Kopie: 2026-11-22 · 35 Einträge (23 Standarten, 12 Vereinsfahnen)
+- Stand dieser Kopie: 2026-11-22 · 74 Einträge (26 Standarten, 48 Vereinsfahnen), davon 39 noch zu validieren
 
 ## Dateien
 
@@ -12,7 +12,7 @@ Stammdaten für den Standarten-Weltrekordversuch und den Jubiläumsabend „150 
 
 ## Felder
 
-`id` ist fest und eindeutig (z. B. `by-ei-koesching`) und dient als Schlüssel für Einladungen und ein späteres Voting. `typ` ist `Standarte` oder `Vereinsfahne`. `status`: `belegt` = eigene Quelle der Feuerwehr, `zu prüfen` = indirekte Quelle oder Zuordnung unsicher. `einladung`: offen, eingeladen, zugesagt, abgesagt.
+`id` ist fest und eindeutig (z. B. `by-ei-koesching`) und dient als Schlüssel für Einladungen und ein späteres Voting. `typ` ist `Standarte` oder `Vereinsfahne`. `status`: `belegt` = eigene Quelle der Feuerwehr, `zu prüfen` = indirekte Quelle oder Zuordnung unsicher, `noch zu validieren` = neues Rechercheergebnis, wartet auf Bestätigung, `validiert` = bestätigt. `einladung`: offen, eingeladen, zugesagt, abgesagt.
 
 ## Hinweise
 
