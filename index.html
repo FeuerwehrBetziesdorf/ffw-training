@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" class="ffw-pruefe">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -40,6 +40,9 @@ footer .spruch{font-family:Georgia,serif;font-style:italic;color:var(--accent);d
 .chip:focus-visible,.card:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .stand{display:block;margin-top:6px;color:#1e6b2f;font-weight:600;font-size:.9rem}
 .klein{font-size:.85rem}
+li.unit[hidden]{display:none}
+html.ffw-pruefe li.unit{visibility:hidden}
+.gesperrt{display:block;margin-top:6px;color:var(--accent);font-weight:600;font-size:.9rem}
 </style>
 </head>
 <body>
@@ -76,12 +79,23 @@ footer .spruch{font-family:Georgia,serif;font-style:italic;color:var(--accent);d
     var c=get(li.dataset.code); if(!c) return;
     var s=li.querySelector('.stand'); s.hidden=false; s.textContent='✓ Quiz geschafft · Code '+c;
   });
-  // Freigabe durch die Ausbildung: gesperrte Einheiten ausblenden
-  fetch('freigabe.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(f){
-    var zu={}; (f.einheiten||[]).forEach(function(e){if(e.frei===false)zu[e.ordner]=1});
-    var n=0; document.querySelectorAll('li.unit').forEach(function(li){var g=!!zu[li.dataset.ordner]; li.hidden=g; if(!g)n++});
-    var k=document.getElementById('keine'); if(k)k.hidden=n>0;
-  }).catch(function(){});
+  // Freigabe durch die Ausbildung: nur Einheiten zeigen, die in freigabe.json "frei": true haben.
+  // Neue Einheiten, die dort fehlen, bleiben unsichtbar. Trainer-Geräte sehen alles mit Vermerk.
+  var trainer=!!get('ffwTrainerToken');
+  function anwenden(f){
+    var auf={}; (f&&f.einheiten||[]).forEach(function(e){if(e.frei===true)auf[e.ordner]=1});
+    var n=0; document.querySelectorAll('li.unit').forEach(function(li){
+      var ok=!!auf[li.dataset.ordner];
+      li.hidden=!ok&&!trainer; if(ok)n++;
+      if(!ok&&trainer&&!li.querySelector('.gesperrt')){var b=document.createElement('span');b.className='gesperrt';b.textContent='Für die Mannschaft gesperrt (nur du siehst das)';var c=li.querySelector('.card');(c||li).appendChild(b)}
+    });
+    var k=document.getElementById('keine'); if(k)k.hidden=n>0||trainer;
+    document.documentElement.classList.remove('ffw-pruefe');
+  }
+  fetch('freigabe.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(f){
+    try{localStorage.setItem('ffwFreigabe',JSON.stringify(f))}catch(e){}
+    anwenden(f);
+  }).catch(function(){var c=null;try{c=JSON.parse(get('ffwFreigabe'))}catch(e){};anwenden(c)});
 })();
 </script>
 <footer><span class="spruch">„Gott zur Ehr, dem Nächsten zur Wehr“</span>Im Notfall immer <b>112</b></footer>
