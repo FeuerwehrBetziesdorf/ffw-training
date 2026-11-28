@@ -170,7 +170,7 @@ footer .spruch{font-family:Georgia,serif;font-style:italic;color:var(--accent);d
 <section id="quiz" role="tabpanel" aria-label="Quiz">
   <h2>Quiz</h2>
   <div class="card" id="quizStart">
-    <p>17 Fragen. Ab 80 % richtig bekommst du einen Abschluss-Code für die Jahres-Challenge. Zeig ihn Gerhard, dann gibt es einen Punkt für dein Team.</p>
+    <p>17 Fragen. Ab 80 % richtig bekommst du einen Abschluss-Code.</p>
     <label for="qName">Dein Name (für den Code)</label>
     <input id="qName" type="text" autocomplete="given-name">
     <button class="primary" id="qBegin" style="margin-top:16px">Quiz starten</button>
@@ -306,7 +306,7 @@ $('#qNext').onclick=()=>{qi++; if(qi<QUIZ.length)showQ(); else endQ()};
 function code(n){let h=7;const s=(n||'anonym').toLowerCase()+'|stv01';for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return 'STV1-'+(h%9000+1000)}
 function endQ(){$('#quizBox').hidden=true;const p=Math.round(qOk/QUIZ.length*100);const e=$('#quizEnd');e.hidden=false;
  let h=`<p class="big">${qOk} von ${QUIZ.length} richtig (${p} %)</p>`;
- if(p>=80){const c=code(qName);store.set('stv01code',c);h+=`<p>Geschafft! Dein Abschluss-Code${qName?' für '+qName.replace(/[<>&]/g,''):''}:</p><p class="code">${c}</p><p>Mach einen Screenshot und schick ihn Gerhard. Das gibt einen Punkt für dein Team.</p>`; say(`Geschafft. ${p} Prozent. Dein Code: ${c.split('').join(' ')}`);}
+ if(p>=80){const c=code(qName);store.set('stv01code',c);h+=`<p>Geschafft! Dein Abschluss-Code${qName?' für '+qName.replace(/[<>&]/g,''):''}:</p><p class="code">${c}</p>`; say(`Geschafft. ${p} Prozent. Dein Code: ${c.split('').join(' ')}`);}
  else {h+=`<p>Für den Code brauchst du 80 %. Schau dir die Erklärungen an und versuch es nochmal.</p>`; say(`${p} Prozent. Für den Code brauchst du 80 Prozent.`);}
  h+=`<button class="primary" id="qAgain">Nochmal</button>`;e.innerHTML=h;$('#qAgain').onclick=()=>$('#qBegin').click();}
 $('#readMerk').onclick=()=>{const was=speakOn;speakOn=true;say([...document.querySelectorAll('#merk .big')].map(x=>x.textContent).join(' '));speakOn=was};
