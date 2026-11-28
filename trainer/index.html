@@ -59,6 +59,9 @@ details.box summary{cursor:pointer;font-family:Georgia,serif;color:var(--accent)
 details.box input{width:100%;min-height:44px;font-size:1rem;padding:8px;border:1px solid var(--line);border-radius:6px;box-sizing:border-box;margin:6px 0 10px}
 ol.anl li{margin:4px 0}
 main a{color:var(--accent)}
+.row .t{min-width:0;hyphens:auto;overflow-wrap:break-word}
+.row .an{min-height:44px;display:inline-flex;align-items:center;padding:0 6px;font-size:.95rem}
+.row .st.neu{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -66,7 +69,7 @@ main a{color:var(--accent)}
 <header class="top">
   <p class="kicker">Training · Für die Ausbildung</p>
   <h1>Trainerseite</h1>
-  <p class="muted">Hier schaltest du Einheiten für die Mannschaft frei oder sperrst sie. Gesperrte Einheiten verschwinden von der Startseite und zeigen beim Aufruf einen Hinweis.</p>
+  <p class="muted">Hier schaltest du Einheiten für die Mannschaft frei oder sperrst sie. Gesperrte Einheiten verschwinden von der Startseite und zeigen beim Aufruf einen Hinweis. Neue Einheiten sind automatisch gesperrt, bis du sie freigibst. Auf diesem Gerät (mit eingerichtetem Zugang) siehst du gesperrte Einheiten trotzdem, mit rotem Vermerk.</p>
 </header>
 <main>
   <div id="zugangHinweis" class="msg" hidden>Zum Speichern brauchst du auf diesem Gerät einmal einen GitHub-Zugang. Unten unter „Zugang einrichten“ steht, wie es geht.</div>
@@ -75,6 +78,12 @@ main a{color:var(--accent)}
   <p><button class="btn" id="speichern" disabled>Änderungen speichern</button> <button class="btn sec" id="neu">Neu laden</button></p>
   <div id="meldung" class="msg" hidden aria-live="polite"></div>
   <p class="muted" style="font-size:.85rem">Nach dem Speichern dauert es 1 bis 2 Minuten, bis die Änderung auf allen Handys ankommt. Ohne Zugang kannst du die Datei auch <a href="https://github.com/FeuerwehrBetziesdorf/ffw-training/edit/main/freigabe.json" target="_blank" rel="noopener">direkt auf GitHub bearbeiten</a> (true = frei, false = gesperrt).</p>
+
+  <details class="box">
+    <summary>Wie sicher ist die Sperre?</summary>
+    <p>Die Sperre ist ein Sichtschutz, kein Tresor. Die Seiten liegen öffentlich auf GitHub. Wer die genaue Adresse einer gesperrten Einheit kennt und den Hinweis absichtlich umgeht, oder wer im Repository auf GitHub stöbert, kann den Inhalt sehen. Für die Mannschaft reicht das: Auf der Startseite taucht nichts auf, und ein direkter Aufruf zeigt nur „Gerade nicht freigegeben“.</p>
+    <p>Etwas wirklich Geheimes (zum Beispiel Lösungen einer Prüfung) gehört deshalb erst dann ins Repository, wenn der Unterricht gehalten ist.</p>
+  </details>
 
   <details class="box" id="zugang">
     <summary>Zugang einrichten</summary>
@@ -101,7 +110,8 @@ main a{color:var(--accent)}
   function b64dec(s){var b=atob(s.replace(/\n/g,''));var u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return new TextDecoder().decode(u)}
   function b64enc(s){var u=new TextEncoder().encode(s),b='';for(var i=0;i<u.length;i++)b+=String.fromCharCode(u[i]);return btoa(b)}
   function hdr(){return {'Authorization':'Bearer '+tok(),'Accept':'application/vnd.github+json'}}
-  function geaendert(){$('speichern').disabled=JSON.stringify(daten)===orig}
+  function sauber(){return {einheiten:daten.einheiten.map(function(e){return {ordner:e.ordner,titel:e.titel,frei:e.frei===true}})}}
+  function geaendert(){var neu=daten.einheiten.some(function(e){return e._neu});$('speichern').disabled=!neu&&JSON.stringify(sauber())===orig}
   function zeige(){
     var l=$('liste'); l.innerHTML='';
     daten.einheiten.forEach(function(e,i){
@@ -109,25 +119,39 @@ main a{color:var(--accent)}
       var t=document.createElement('div'); t.className='t'; t.textContent=e.titel;
       var st=document.createElement('span'); st.className='st'; t.appendChild(st);
       var b=document.createElement('button'); b.className='sw'; b.setAttribute('role','switch');
-      function upd(){var f=e.frei!==false;b.setAttribute('aria-checked',f);b.setAttribute('aria-label',e.titel+': '+(f?'freigegeben':'gesperrt'));st.textContent=f?'Freigegeben':'Gesperrt'}
-      b.onclick=function(){e.frei=(e.frei===false);upd();geaendert()};
-      upd(); r.appendChild(t); r.appendChild(b); l.appendChild(r);
+      function upd(){var f=e.frei===true;b.setAttribute('aria-checked',f);b.setAttribute('aria-label',e.titel+': '+(f?'freigegeben':'gesperrt'));st.textContent=f?'Freigegeben':'Gesperrt'}
+      b.onclick=function(){e.frei=(e.frei!==true);upd();geaendert()};
+      if(e._neu){var nb=document.createElement('span');nb.className='st neu';nb.textContent='Neu auf der Startseite, noch nicht gespeichert';t.appendChild(nb)}
+      var a=document.createElement('a'); a.className='an'; a.href='../'+e.ordner+'/'; a.target='_blank'; a.rel='noopener'; a.textContent='Ansehen'; a.setAttribute('aria-label',e.titel+' ansehen');
+      upd(); r.appendChild(t); r.appendChild(a); r.appendChild(b); l.appendChild(r);
     });
     geaendert();
+  }
+  // Einheiten, die auf der Startseite stehen, aber noch nicht in freigabe.json, als gesperrt ergänzen
+  function ergaenze(d){
+    d.einheiten=d.einheiten||[];
+    return fetch('../?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(h){
+      var doc=new DOMParser().parseFromString(h,'text/html');
+      doc.querySelectorAll('li.unit[data-ordner]').forEach(function(li){
+        var o=li.dataset.ordner; if(d.einheiten.some(function(e){return e.ordner===o}))return;
+        var nr=li.querySelector('.nr'),ti=li.querySelector('.titel');
+        d.einheiten.push({ordner:o,titel:(nr?nr.textContent+': ':'')+(ti?ti.textContent:o),frei:false,_neu:true});
+      });
+    }).catch(function(){});
   }
   function laden(){
     $('meldung').hidden=true; $('zugangHinweis').hidden=!!tok();
     var p=tok()?fetch(API+'?ref=main&t='+Date.now(),{headers:hdr(),cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('GitHub antwortet mit '+r.status+'. Ist der Zugangsschlüssel noch gültig?');return r.json()}).then(function(j){sha=j.sha;return JSON.parse(b64dec(j.content))})
       :fetch('../'+DATEI+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()});
-    p.then(function(d){daten=d;orig=JSON.stringify(d);zeige()}).catch(function(e){$('liste').innerHTML='';melde('Laden hat nicht geklappt: '+e.message,'err')});
+    p.then(function(d){daten=d;orig=JSON.stringify(sauber());return ergaenze(d)}).then(zeige).catch(function(e){$('liste').innerHTML='';melde('Laden hat nicht geklappt: '+e.message,'err')});
   }
   $('speichern').onclick=function(){
     if(!tok()){melde('Zum Speichern bitte erst unten den Zugang einrichten.','err');$('zugang').open=true;return}
     $('speichern').disabled=true; melde('Speichere …');
-    var aus=daten.einheiten.map(function(e){return (e.frei===false?'gesperrt: ':'frei: ')+e.ordner}).join(', ');
-    fetch(API,{method:'PUT',headers:hdr(),body:JSON.stringify({message:'Freigabe geändert über die Trainerseite ('+aus+')',content:b64enc(JSON.stringify(daten,null,2)+'\n'),sha:sha,branch:'main'})})
+    var aus=daten.einheiten.map(function(e){return (e.frei===true?'frei: ':'gesperrt: ')+e.ordner}).join(', ');
+    fetch(API,{method:'PUT',headers:hdr(),body:JSON.stringify({message:'Freigabe geändert über die Trainerseite ('+aus+')',content:b64enc(JSON.stringify(sauber(),null,2)+'\n'),sha:sha,branch:'main'})})
       .then(function(r){if(r.status===409)throw new Error('Die Datei wurde inzwischen geändert. Bitte neu laden.');if(!r.ok)throw new Error('GitHub antwortet mit '+r.status+'.');return r.json()})
-      .then(function(j){sha=j.content.sha;orig=JSON.stringify(daten);geaendert();melde('Gespeichert. In 1 bis 2 Minuten sehen es alle.','ok')})
+      .then(function(j){sha=j.content.sha;daten.einheiten.forEach(function(e){delete e._neu});orig=JSON.stringify(sauber());zeige();geaendert();melde('Gespeichert. In 1 bis 2 Minuten sehen es alle.','ok')})
       .catch(function(e){geaendert();melde('Speichern hat nicht geklappt: '+e.message,'err')});
   };
   $('neu').onclick=laden;
