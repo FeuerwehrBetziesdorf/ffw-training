@@ -1,0 +1,32 @@
+# Hydranten und Löschwasserentnahmestellen Betziesdorf – SIMULIERT, NICHT der offizielle Plan!
+# Austausch: Zeilen durch echte Standorte ersetzen, status auf "offiziell" setzen. Spalten mit Semikolon, Dezimalkomma erlaubt.
+# typ: UH=Unterflurhydrant, OH=Überflurhydrant, EH=Entnahmehydrant am Hochbehälter, HB=Hochbehälter, LW=sonstige Löschwasserentnahme (Teich, Zisterne, Bach)
+id;typ;bezeichnung;lat;lon;status;netzdruck_bar;nennweite_dn;inhalt_m3;wasserspiegel_m_nn;bemerkung
+HB1;HB;Hochbehälter oberhalb Sternacker (Lage geschätzt);50,86487;8,840645;simuliert;;;300;;300 m³ exklusiv als Löschwasser. Wasserspiegel unbekannt, Programm nimmt Geländehöhe + 3 m
+EH1;EH;Entnahmehydrant Hochbehälter, Ende Am Sternacker;50,8645;8,84356;simuliert;;100;;;wird aus dem Hochbehälter gespeist (Druck aus Höhenunterschied)
+H01;UH;Unterflurhydrant 01 (simuliert);50,866646;8,850195;simuliert;4;80;;;
+H02;UH;Unterflurhydrant 02 (simuliert);50,865577;8,850303;simuliert;4;80;;;
+H03;UH;Unterflurhydrant 03 (simuliert);50,864;8,844469;simuliert;4;80;;;
+H04;UH;Unterflurhydrant 04 (simuliert);50,863935;8,842864;simuliert;4;80;;;
+H05;UH;Unterflurhydrant 05 (simuliert);50,863668;8,846459;simuliert;4;80;;;
+H06;UH;Unterflurhydrant 06 (simuliert);50,86288;8,84311;simuliert;4;80;;;
+H07;UH;Unterflurhydrant 07 (simuliert);50,86239;8,847151;simuliert;4;80;;;
+H08;UH;Unterflurhydrant 08 (simuliert);50,861992;8,842161;simuliert;4;80;;;
+H09;UH;Unterflurhydrant 09 (simuliert);50,86167;8,84803;simuliert;4;80;;;
+H10;UH;Unterflurhydrant 10 (simuliert);50,86165;8,84551;simuliert;4;80;;;
+H11;UH;Unterflurhydrant 11 (simuliert);50,86106;8,84986;simuliert;4;80;;;
+H12;UH;Unterflurhydrant 12 (simuliert);50,86096;8,8469;simuliert;4;80;;;
+H13;UH;Unterflurhydrant 13 (simuliert);50,86078;8,84421;simuliert;4;80;;;
+H14;UH;Unterflurhydrant 14 (simuliert);50,86041;8,845631;simuliert;4;80;;;
+H15;UH;Unterflurhydrant 15 (simuliert);50,85988;8,848661;simuliert;4;80;;;
+H16;UH;Unterflurhydrant 16 (simuliert);50,85986;8,843689;simuliert;4;80;;;
+H17;UH;Unterflurhydrant 17 (simuliert);50,85971;8,84213;simuliert;4;80;;;
+H18;UH;Unterflurhydrant 18 (simuliert);50,8595;8,84706;simuliert;4;80;;;
+H19;UH;Unterflurhydrant 19 (simuliert);50,859292;8,845454;simuliert;4;80;;;
+H20;UH;Unterflurhydrant 20 (simuliert);50,85875;8,843739;simuliert;4;80;;;
+H21;UH;Unterflurhydrant 21 (simuliert);50,85861;8,84155;simuliert;4;80;;;
+H22;UH;Unterflurhydrant 22 (simuliert);50,858442;8,846779;simuliert;4;80;;;
+H23;UH;Unterflurhydrant 23 (simuliert);50,85841;8,83985;simuliert;4;80;;;
+H24;UH;Unterflurhydrant 24 (simuliert);50,85788;8,84091;simuliert;4;80;;;
+H25;UH;Unterflurhydrant 25 (simuliert);50,85783;8,83892;simuliert;4;80;;;
+H26;UH;Unterflurhydrant 26 (simuliert);50,855706;8,83753;simuliert;4;80;;;
